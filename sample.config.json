@@ -1,0 +1,52 @@
+{
+
+	"common": {
+		"user": "TBC",
+		"password": "TBC",
+		"ipsec-key": "this-must-be-secret",
+		"snmp-community": "this-must-be-secret",
+		"snmp-server": "10.200.200.X",
+		"syslog-server": "10.200.200.X",
+		"dhcp-server": "10.200.0.X",
+		"ntp-server": "10.200.1.X"
+	},
+
+	"IX00X": {
+		"description": "somewhere",
+
+		"hostname": "IX00X",
+
+
+		"upstream": "pppoe",
+		"pppoe-id": "PPPoE-ID",
+		"pppoe-password": "PPPoE-Password",
+
+		"ipsec-peer": "X.X.X.X",
+
+		"ipsec-local-id": "onsite-gw-0X.conbu.net",
+		"ipsec-remote-id": "cloud-gw-0X.conbu.net",
+
+		"ipsec-local-net": "10.1.0.0/16",
+		"mgmt-prefix": "10.1.200.1/24",
+		"user-prefix": "10.1.0.1/21"
+	},
+	"IX00Y": {
+		"description": "somewhere",
+
+		"hostname": "IX00Y",
+
+
+		"upstream": "dhcp",
+
+		"ipsec-peer": "Y.Y.Y.Y",
+
+		"ipsec-local-id": "onsite-gw-0Y.conbu.net",
+		"ipsec-remote-id": "cloud-gw-0Y.conbu.net",
+
+		"ipsec-local-net": "10.1.0.0/16",
+		"mgmt-prefix": "10.1.200.1/24",
+		"user-prefix": "10.1.0.1/21"
+	}
+
+
+}

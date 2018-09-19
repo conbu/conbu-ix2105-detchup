@@ -1,0 +1,115 @@
+hostname <%= my["hostname"] %>
+username <%= common["user"] %> password plain 0 <%= common["password"] %>
+
+<%# syslog関連 %>
+logging buffered 4096
+logging subsystem all warn
+syslog facility local7
+syslog ip host <%= common["syslog-server"] %>
+syslog ip source <%= my["mgmt-addr-host"] %>
+syslog timestamp datetime
+
+<%# SSH/telnet %>
+ssh-server ip access-list remote_access
+ssh-server ip enable
+telnet-server ip enable
+
+<%# ntp %>
+ntp ip enable
+ntp server <%= common["ntp-server"] %>
+
+<%# snmp %>
+snmp-agent ip enable
+snmp-agent ip community <%= common["snmp-community"] %>
+snmp-agent ip host <%= common["snmp-server"] %> <%= common["snmp-community"] %> version 2
+
+<%# DHCPリレー %>
+ip dhcp-relay enable
+
+<%# ルーティング関連 %>
+ip ufs-cache enable
+ip ufs-cache max-entries 65535
+ip route default Tunnel0.0
+<% if my["upstream"] == "pppoe" %>
+ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1
+<% elsif my["upstream"] == "dhcp" %>
+ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1 dhcp
+<% end %>
+
+<%# フィルタ %>
+ip access-list remote_access permit ip src 10.200.0.0/16 dest any
+ip access-list sec-list permit ip src any dest any
+ip access-list user_acl deny ip src <%= my["user-prefix"] %> dest <%= my["mgmt-prefix"] %>
+ip access-list user_acl permit ip src any dest any
+
+
+<%# IKE関連 %>
+ike initial-contact always
+ike proposal conbu encryption aes-256 hash sha2-512 group 2048-bit
+ike policy conbu_ike peer <%= my["ipsec-peer"] %> key <%= common["ipsec-key"] %> mode aggressive conbu
+ike keepalive conbu_ike 10 3
+ike local-id conbu_ike fqdn <%= my["ipsec-local-id"] %>
+ike remote-id conbu_ike fqdn <%= my["ipsec-remote-id"] %>
+ike suppress-dangling conbu_ike
+ike nat-traversal policy conbu_ike
+ipsec autokey-proposal secprop esp-aes-256 esp-sha2-512
+ipsec rekey remaining-lifetime default second 30
+ipsec autokey-map conbu_ipsec_seg sec-list peer <%= my["ipsec-peer"] %> secprop
+ipsec local-id conbu_ipsec_seg <%= my["ipsec-local-net"] %>
+ipsec remote-id conbu_ipsec_seg 0.0.0.0/0
+no ipsec ike-passthru
+
+<%# PPPoE 関連 %>
+<% if my["upstream"] == "pppoe" %>
+ppp profile pppprofile0
+  authentication myname <%= my["pppoe-id"] %>
+  authentication password <%= my["pppoe-id"] %> <%= my["pppoe-password"] %>
+<% end %>
+
+<%# 上流 %>
+interface GigaEthernet0.0
+<% if my["upstream"] == "pppoe" %>
+<%# PPPoE IPv4でアドレスをもらう %>
+  description PPPoE0
+  encapsulation pppoe
+  auto-connect
+  ppp binding pppprofile0
+  ip address ipcp
+  ip mtu 1454
+  ip tcp adjust-mss auto
+  no shutdown
+<% elsif my["upstream"] == "dhcp" %>
+<%# DHCPでアドレスをもらう %>
+  ip address dhcp
+  no shutdown
+<% end %>
+!
+
+<%# 下流(MGMT): タグは3000 %>
+interface GigaEthernet1.1
+  description MANAGEMENT
+  encapsulation dot1q 3000 tpid 8100
+  ip address <%= my["mgmt-prefix"] %>
+  ip dhcp-relay server <%= common["dhcp-server"] %> source <%= my["mgmt-addr-host"] %>
+  no shutdown
+!
+
+<%# 下流(USER): タグは3001 %>
+interface GigaEthernet1.2
+  description USER
+  encapsulation dot1q 3001 tpid 8100
+  ip address <%= my["user-prefix"] %>
+  ip dhcp-relay server <%= common["dhcp-server"] %> source <%= my["user-addr-host"] %>
+  ip filter user_acl 1 in
+  no shutdown
+!
+
+<%# IPsecトンネル %>
+interface Tunnel0.0
+  description ToCloud
+  tunnel mode ipsec
+  ip unnumbered GigaEthernet1.1
+  ip tcp adjust-mss auto
+  ipsec policy tunnel conbu_ipsec_seg df-bit ignore pre-fragment out
+  no shutdown
+!
