@@ -36,7 +36,7 @@ sudo ruby ./conbu-ix2105-detchup.rb -c sample.config.json -t ix2105-template.txt
 % sudo cu -l /dev/tty.usbserialXXX -s 9600
 ```
 
-##### 1.ターゲットのC3560を初期化する
+##### 1.ターゲットのIX2105を初期化する
 
 パスワードがわかっている場合は以下の通り設定をすべて吹き飛ばしましょう。
 
@@ -64,7 +64,7 @@ cuなら"~~"
 ```
 たとえばIX101をターゲットに実行する場合
 
-% sudo ruby ./conbu-ix2105-detchup.rb -c config.json -t c3560-template.txt -i IX101 -C /dev/tty.usbserialXXX
+% sudo ruby ./conbu-ix2105-detchup.rb -c config.json -t ix2105-template.txt -i IX101 -C /dev/tty.usbserialXXX
 ```
 
 途中で設定されるコンフィグが表示されるので確認してENTER、やめる場合はctrl + c
