@@ -33,7 +33,6 @@ sudo ruby ./conbu-ix2105-detchup.rb -c sample.config.json -t ix2105-template.txt
 - ゲートウェイでは様々なネットワークサービスを有効にしています。
   - DHCPリレー
     - 各インタフェースか共通DHCPサーバに飛ばします
-  -
 - ゲートウェイでは管理用の様々な機能を有効にしています
   - ntp
   - syslog
@@ -51,7 +50,7 @@ sudo ruby ./conbu-ix2105-detchup.rb -c sample.config.json -t ix2105-template.txt
 ここでは screen あるいは cu を想定しています
 
 ```
-自分のPCで
+自分のPCで以下を実行しコンソールをつかんでください
 % sudo screen /dev/tty.usbserialXXX 9600
 または
 % sudo cu -l /dev/tty.usbserialXXX -s 9600
@@ -62,7 +61,9 @@ sudo ruby ./conbu-ix2105-detchup.rb -c sample.config.json -t ix2105-template.txt
 パスワードがわかっている場合は以下の通り設定をすべて吹き飛ばしましょう。
 
 ```
+こちらで設定全削除
 # erase startup-config
+こちらで再起動
 # reload
 ```
 
@@ -79,8 +80,11 @@ Router#
 screenなら"^a+k"
 cuなら"~~"
 ```
+落として手放したら放置
 
 ##### 3.conbu-ix2105-detchupを実行する
+
+放置されているコンソールを conbu-ix2105-detchup で設定します。
 
 ```
 たとえばIX101をターゲットに実行する場合
