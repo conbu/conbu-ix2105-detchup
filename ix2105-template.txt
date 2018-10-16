@@ -60,7 +60,7 @@ ipsec remote-id conbu_ipsec_seg 0.0.0.0/0
 no ipsec ike-passthru
 
 <%# PPPoE 関連 %>
-<% if my["upstream"] == "pppoe" %>
+<% if my["pppoe-ie"] and my["pppoe-password"] %>
 ppp profile pppprofile0
   authentication myname <%= my["pppoe-id"] %>
   authentication password <%= my["pppoe-id"] %> <%= my["pppoe-password"] %>
@@ -68,7 +68,7 @@ ppp profile pppprofile0
 
 <%# 上流 %>
 interface GigaEthernet0.0
-<% if my["upstream"] == "pppoe" %>
+<% if my["pppoe-id"] and ["pppoe-password"] %>
 <%# PPPoE IPv4でアドレスをもらう %>
   description PPPoE0
   encapsulation pppoe
@@ -78,7 +78,7 @@ interface GigaEthernet0.0
   ip mtu 1454
   ip tcp adjust-mss auto
   no shutdown
-<% elsif my["upstream"] == "dhcp" %>
+<% else %>
 <%# DHCPでアドレスをもらう %>
   ip address dhcp
   no shutdown
