@@ -19,6 +19,8 @@ sudo ruby ./conbu-ix2105-detchup.rb -c sample.config.json -t ix2105-template.txt
 - 対応しているのは IX2105 のみです
   - GE0とGE1があれば適用できるため他のIXシリーズでも使えそうな気はしますが試してはいません。
 - 上流回線として DHCP あるいは PPPoE を選択可能です。
+  - pppoeアカウント ("pppoe-id"と"pppoe-password")が設定されていればPPPoEを使います
+  - それ以外の場合はDHCPを利用します
 
 類似品としてIX2025を対象にした[conbu/conbu-ix2025-detchup](https://github.com/conbu/conbu-ix2025-detchup)があります。
 テンプレートを極度に抽象化すると読みづらいため、IX2025とは独立させています。

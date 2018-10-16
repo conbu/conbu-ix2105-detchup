@@ -30,9 +30,9 @@ ip dhcp-relay enable
 ip ufs-cache enable
 ip ufs-cache max-entries 65535
 ip route default Tunnel0.0
-<% if my["upstream"] == "pppoe" %>
+<% if my["pppoe-id"] and my["pppoe-password"] %>
 ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1
-<% elsif my["upstream"] == "dhcp" %>
+<% else %>
 ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1 dhcp
 <% end %>
 

@@ -16,8 +16,6 @@
 
 		"hostname": "IX00X",
 
-
-		"upstream": "pppoe",
 		"pppoe-id": "PPPoE-ID",
 		"pppoe-password": "PPPoE-Password",
 
@@ -34,9 +32,6 @@
 		"description": "somewhere",
 
 		"hostname": "IX00Y",
-
-
-		"upstream": "dhcp",
 
 		"ipsec-peer": "Y.Y.Y.Y",
 
