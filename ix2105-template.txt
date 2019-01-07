@@ -4,7 +4,10 @@ username <%= common["user"] %> password plain 0 <%= common["password"] %>
 <%# syslog関連 %>
 logging buffered 4096
 logging subsystem all warn
+logging timestamp datetime
 syslog facility local7
+syslog id hostname
+syslog ip enable
 syslog ip host <%= common["syslog-server"] %>
 syslog ip source <%= my["mgmt-addr-host"] %>
 syslog timestamp datetime
@@ -16,19 +19,24 @@ telnet-server ip enable
 
 <%# ntp %>
 ntp ip enable
+ntp interval 3600
+ntp retry 10
 ntp server <%= common["ntp-server"] %>
 
 <%# snmp %>
 snmp-agent ip enable
 snmp-agent ip community <%= common["snmp-community"] %>
 snmp-agent ip host <%= common["snmp-server"] %> <%= common["snmp-community"] %> version 2
+snmp-agent ip trap-source GigaEthernet1.1
 
 <%# DHCPリレー %>
 ip dhcp-relay enable
 
 <%# ルーティング関連 %>
 ip ufs-cache enable
+ipv6 ufs-cache enable
 ip ufs-cache max-entries 65535
+ipv6 ufs-cache max-entries 65535
 ip route default Tunnel0.0
 <% if my["pppoe-id"] and my["pppoe-password"] %>
 ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1
@@ -45,19 +53,33 @@ ip access-list user_acl permit ip src any dest any
 
 <%# IKE関連 %>
 ike initial-contact always
-ike proposal conbu encryption aes-256 hash sha2-512 group 2048-bit
-ike policy conbu_ike peer <%= my["ipsec-peer"] %> key <%= common["ipsec-key"] %> mode aggressive conbu
+ike proposal conbu_prop encryption aes-256 hash sha2-512 group 2048-bit
+ike policy conbu_ike peer <%= my["ipsec-peer"] %> key <%= common["ipsec-key"] %> mode aggressive conbu_prop
 ike keepalive conbu_ike 10 3
 ike local-id conbu_ike fqdn <%= my["ipsec-local-id"] %>
 ike remote-id conbu_ike fqdn <%= my["ipsec-remote-id"] %>
 ike suppress-dangling conbu_ike
 ike nat-traversal policy conbu_ike
+
+ipsec autokey-map conbu_ipsec_seg sec-list peer <%= my["ipsec-peer"] %> secprop pfs 2048-bit
 ipsec autokey-proposal secprop esp-aes-256 esp-sha2-512
 ipsec rekey remaining-lifetime default second 30
-ipsec autokey-map conbu_ipsec_seg sec-list peer <%= my["ipsec-peer"] %> secprop
 ipsec local-id conbu_ipsec_seg <%= my["ipsec-local-net"] %>
 ipsec remote-id conbu_ipsec_seg 0.0.0.0/0
 no ipsec ike-passthru
+
+<%# watch-group 関連 %>
+watch-group wg-cloud-01 10
+  event 10 ip unreach-host <%= my["ipsec-peer"] %> Tunnel0.0 source Tunnel0.0
+  action 10 ipsec clear-sa TUnnel0.0 policy conbu_ipsec_seg
+  probe-counter variance 3
+  probe-counter restorer 5
+  probe-counter watch 3
+  probe-timer restorer 60
+  probe-timer variance 5
+  probe-timer wait 3
+network-monitor wg-cloud-01 enable
+
 
 <%# PPPoE 関連 %>
 <% if my["pppoe-ie"] and my["pppoe-password"] %>
@@ -109,6 +131,7 @@ interface Tunnel0.0
   description ToCloud
   tunnel mode ipsec
   ip unnumbered GigaEthernet1.1
+  ip mtu 1280
   ip tcp adjust-mss auto
   ipsec policy tunnel conbu_ipsec_seg df-bit ignore pre-fragment out
   no shutdown
