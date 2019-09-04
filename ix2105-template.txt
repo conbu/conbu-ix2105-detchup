@@ -47,7 +47,7 @@ ip route default Tunnel0.0
 <% if my["pppoe-id"] and my["pppoe-password"] %>
 ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1
 <% else %>
-ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1 dhcp
+ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.0 dhcp
 <% end %>
 
 <%# フィルタ %>
