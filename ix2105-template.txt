@@ -8,7 +8,9 @@ logging timestamp datetime
 syslog facility local7
 syslog id hostname
 syslog ip enable
-syslog ip host <%= common["syslog-server"] %>
+<% common["syslog-servers"].each do |syslog_server| %>
+syslog ip host <%= syslog_server %>
+<% end %>
 syslog ip source <%= my["mgmt-addr-host"] %>
 syslog timestamp datetime
 
@@ -26,7 +28,9 @@ ntp server <%= common["ntp-server"] %>
 <%# snmp %>
 snmp-agent ip enable
 snmp-agent ip community <%= common["snmp-community"] %>
-snmp-agent ip host <%= common["snmp-server"] %> <%= common["snmp-community"] %> version 2
+<% common["snmp-servers"].each do |snmp_server| %>
+snmp-agent ip host <%= snmp_server %> <%= common["snmp-community"] %> version 2
+<% end %>
 snmp-agent ip trap-source GigaEthernet1.1
 
 <%# DHCPリレー %>
@@ -37,6 +41,8 @@ ip ufs-cache enable
 ipv6 ufs-cache enable
 ip ufs-cache max-entries 65535
 ipv6 ufs-cache max-entries 65535
+ip cache-size 65535
+ipv6 cache-size 20200
 ip route default Tunnel0.0
 <% if my["pppoe-id"] and my["pppoe-password"] %>
 ip route <%= my["ipsec-peer"] %>/32 GigaEthernet0.1

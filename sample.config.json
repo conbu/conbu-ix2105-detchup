@@ -5,8 +5,8 @@
 		"password": "TBC",
 		"ipsec-key": "this-must-be-secret",
 		"snmp-community": "this-must-be-secret",
-		"snmp-server": "10.200.200.X",
-		"syslog-server": "10.200.200.X",
+		"snmp-servers": ["10.200.200.X"] ,
+		"syslog-servers": [ "10.200.200.X" ],
 		"dhcp-server": "10.200.0.X",
 		"ntp-server": "10.200.1.X"
 	},
